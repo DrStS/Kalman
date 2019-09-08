@@ -69,7 +69,7 @@ class UKF {
    */
   void PredictMeanAndCovariance(void);
 
-  void PredictRadarMeasurement(Eigen::VectorXd *z_out, Eigen::MatrixXd *S_out);
+  void PredictRadarMeasurement(void);
 
   public:
   
@@ -85,14 +85,25 @@ class UKF {
   // state vector: [pos1 pos2 vel_abs yaw_angle yaw_rate] in SI units and rad
   Eigen::VectorXd x_;
 
+   // state radar vector: 
+  Eigen::VectorXd z_pred_;
+
   // state covariance matrix
   Eigen::MatrixXd P_;
+
+   // state covariance matrix in radar measurement space
+  Eigen::MatrixXd S_pred_;
 
   // predicted sigma points matrix
   Eigen::MatrixXd Xsig_pred_;
 
+  // predicted sigma points matrix in radar measurement space
+  Eigen::MatrixXd Zsig_pred_;
+
   // time when the state is true, in us
   long long time_us_;
+
+  long previous_time_stamp_radar_;
 
   // Process noise standard deviation longitudinal acceleration in m/s^2
   double std_a_;
@@ -120,6 +131,9 @@ class UKF {
 
   // State dimension
   int n_x_;
+
+  // State dimension radar
+  int n_z_;
 
   // Augmented state dimension
   int n_aug_;
