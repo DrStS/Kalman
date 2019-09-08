@@ -22,11 +22,11 @@ public:
 	// Set which cars to track with UKF
 	std::vector<bool> trackCars = {true,false,false};
 	// Visualize sensor measurements
-	bool visualize_lidar = false;
-	bool visualize_radar = false;
+	bool visualize_lidar = true;
+	bool visualize_radar = true;
 	bool visualize_pcd = false;
 	// Predict path in the future using UKF
-	double projectedTime = 2;
+	double projectedTime = 1;
 	int projectedSteps = 6;
 	// --------------------------------
 
@@ -37,7 +37,7 @@ public:
 	
 		egoCar = Car(Vect3(0, 0, 0), Vect3(4, 2, 2), Color(0, 1, 0), 0, 0, 2, "egoCar");
 		
-		Car car1(Vect3(-10, 4, 0), Vect3(4, 2, 2), Color(0, 0, 1), 5, 0, 2, "car1");
+		Car car1(Vect3(-10, 4, 0), Vect3(4, 2, 2), Color(1, 0, 1), 5, 0, 2, "car1");
 		
 		std::vector<accuation> car1_instructions;
 		accuation a = accuation(0.5*1e6, 0.5, 0.0);
@@ -139,6 +139,13 @@ public:
     			double v1 = cos(yaw)*v;
     			double v2 = sin(yaw)*v;
 				estimate << traffic[i].ukf.x_[0], traffic[i].ukf.x_[1], v1, v2;
+				std::cout << "======================" << std::endl;
+   				std::cout << "Ground truth:" << std::endl;
+    			std::cout << gt << std::endl;
+				std::cout << "======================" << std::endl;
+   				std::cout << "Estimation:" << std::endl;
+    			std::cout << estimate << std::endl;
+				std::cout << "======================" << std::endl;
 				tools.estimations.push_back(estimate);
 	
 			}
