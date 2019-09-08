@@ -16,6 +16,8 @@ UKF::UKF()
   // if this is false, radar measurements will be ignored (except during init)
   use_radar_ = true;
 
+  is_initialized_=false;
+
   // State dimension
   n_x_ = 5;
 
@@ -81,37 +83,45 @@ void UKF::ProcessMeasurement(MeasurementPackage meas_package)
    * TODO: Complete this function! Make sure you switch between lidar and radar
    * measurements.
    */
-  //std::cout << "1"<< std::endl;
+/*
+ 
   if (!is_initialized_)
   {
-    x_ = VectorXd::Zero(n_x_);
-    P_ = MatrixXd::Zero(n_x_, n_x_);
+    x_ = VectorXd::Ones(n_x_);
+    P_ = MatrixXd::Identity(n_x_, n_x_);
+
+  std::cout << "x = " << x_ << std::endl;
+  std::cout << "======================" << std::endl;
+  std::cout << "P_ = " << P_<< std::endl;
     
     previous_time_stamp_radar_ = meas_package.timestamp_;
     is_initialized_ = true;
   }
-  float dt = (meas_package.timestamp_ - previous_time_stamp_radar_) / 1000000.0;
+  float dT = (meas_package.timestamp_ - previous_time_stamp_radar_) / 1000000.0;
   previous_time_stamp_radar_ = meas_package.timestamp_;
 
   if(meas_package.sensor_type_== MeasurementPackage::SensorType::LASER)
   std::cout << "Lidar" << std::endl;
-  Prediction(0.1);
+  Prediction(dT);
   if(meas_package.sensor_type_== MeasurementPackage::SensorType::RADAR){
   std::cout << "Radar" << std::endl;
-  std::cout << "dT " <<dt<< std::endl;
+  std::cout << "dT " <<dT<< std::endl;
   UpdateRadar(meas_package);
-  }
+
+   */
 }
 
 void UKF::Prediction(double delta_t)
 {
   static unsigned int numCalls = 0;
-  bool verbose = true;
+  bool verbose = false;
   /**
    * TODO: Complete this function! Estimate the object's location. 
    * Modify the state vector, x_. Predict sigma points, the state, 
    * and the state covariance matrix.
    */
+
+  /*
   x_ << 5.7441,
       1.3800,
       2.2049,
@@ -123,17 +133,20 @@ void UKF::Prediction(double delta_t)
       0.0030, 0.0011, 0.0054, 0.0007, 0.0008,
       -0.0022, 0.0071, 0.0007, 0.0098, 0.0100,
       -0.0020, 0.0060, 0.0008, 0.0100, 0.0123;
+  */
 
   MatrixXd Xsig;
   GenerateSigmaPoints(&Xsig);
   MatrixXd Xsig_aug;
   AugmentedSigmaPoints(&Xsig_aug);
   SigmaPointPrediction(Xsig_aug, delta_t); // this writes memeber var Xsig_pred_
+  /*
     Xsig_pred_ << 5.9374, 6.0640, 5.925, 5.9436, 5.9266, 5.9374, 5.9389, 5.9374, 5.8106, 5.9457, 5.9310, 5.9465, 5.9374, 5.9359, 5.93744,
       1.48, 1.4436, 1.660, 1.4934, 1.5036, 1.48, 1.4868, 1.48, 1.5271, 1.3104, 1.4787, 1.4674, 1.48, 1.4851, 1.486,
       2.204, 2.2841, 2.2455, 2.2958, 2.204, 2.204, 2.2395, 2.204, 2.1256, 2.1642, 2.1139, 2.204, 2.204, 2.1702, 2.2049,
       0.5367, 0.47338, 0.67809, 0.55455, 0.64364, 0.54337, 0.5367, 0.53851, 0.60017, 0.39546, 0.51900, 0.42991, 0.530188, 0.5367, 0.535048,
       0.352, 0.29997, 0.46212, 0.37633, 0.4841, 0.41872, 0.352, 0.38744, 0.40562, 0.24347, 0.32926, 0.2214, 0.28687, 0.352, 0.318159;
+  */
   PredictMeanAndCovariance();
   // print result
   if (verbose)
@@ -240,10 +253,13 @@ void UKF::UpdateRadar(MeasurementPackage meas_package)
   x_ = x_ + K * z_diff;
   P_ = P_ - K*S_pred_*K.transpose();
 
+  double radarNIS= z_diff.transpose()*S_pred_*z_diff;
+
   // print result
+  std::cout << "Radar NIS (Normalized Innovation Squared) value: " << radarNIS << std::endl;
   std::cout << "Updated state x: " << std::endl << x_ << std::endl;
-  std::cout << "Updated state covariance P: " << std::endl << P_ << std::endl;
-  exit(EXIT_SUCCESS); //DEBUG
+  //std::cout << "Updated state covariance P: " << std::endl << P_ << std::endl;
+ // exit(EXIT_SUCCESS); //DEBUG
 }
 
 //Private methods
