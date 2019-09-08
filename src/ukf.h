@@ -69,6 +69,8 @@ class UKF {
    */
   void PredictMeanAndCovariance(void);
 
+  void PredictRadarMeasurement(Eigen::VectorXd *z_out, Eigen::MatrixXd *S_out);
+
   public:
   
   // initially set to false, set to true in first call of ProcessMeasurement
