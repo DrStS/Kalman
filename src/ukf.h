@@ -61,6 +61,13 @@ class UKF {
    * @param[out] Xsig_aug_out 
    */
   void SigmaPointPrediction(Eigen::MatrixXd &Xsig_aug, double delta_t);
+    /**
+   * Augmented Sigma Points
+   * @param[in] x
+   * @param[in] P
+   * @param[out] Xsig_aug_out 
+   */
+  void PredictMeanAndCovariance(void);
 
   public:
   

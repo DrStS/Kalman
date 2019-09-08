@@ -82,6 +82,7 @@ void UKF::ProcessMeasurement(MeasurementPackage meas_package)
 
 void UKF::Prediction(double delta_t)
 {
+  static unsigned int numCalls=0;
   /**
    * TODO: Complete this function! Estimate the object's location. 
    * Modify the state vector, x_. Predict sigma points, the state, 
@@ -103,16 +104,29 @@ void UKF::Prediction(double delta_t)
   GenerateSigmaPoints(&Xsig);
   MatrixXd Xsig_aug;
   AugmentedSigmaPoints(&Xsig_aug);
-  SigmaPointPrediction(Xsig_aug, 0.1);
+  SigmaPointPrediction(Xsig_aug, delta_t); // this writes memeber var Xsig_pred_
+  PredictMeanAndCovariance();
   // print result
+  std::cout.precision(5);
+  std::cout << std::scientific;
+   std::cout << "Current # function call UKF::Prediction: " << numCalls << std::endl;
   std::cout << "======================" << std::endl;
   std::cout << "Xsig = " << Xsig << std::endl;
   std::cout << "======================" << std::endl;
-  std::cout << "Xsig_aug = " << std::endl << Xsig_aug << std::endl;
+  std::cout << "Xsig_aug = " << std::endl 
+  << Xsig_aug << std::endl;
   std::cout << "======================" << std::endl;
-  std::cout << "Xsig_pred = " << std::endl << Xsig_pred_ << std::endl;
+  std::cout << "Xsig_pred = " << std::endl
+            << Xsig_pred_ << std::endl;
   std::cout << "======================" << std::endl;
-  exit(EXIT_SUCCESS);
+  std::cout << "Predicted state" << std::endl;
+  std::cout << x_ << std::endl;
+  std::cout << "======================" << std::endl;
+  std::cout << "Predicted covariance matrix" << std::endl;
+  std::cout << P_ << std::endl;
+  std::cout << "======================" << std::endl;
+  //exit(EXIT_SUCCESS);//DEBUG
+  numCalls++;
 }
 
 void UKF::UpdateLidar(MeasurementPackage meas_package)
@@ -162,7 +176,7 @@ void UKF::GenerateSigmaPoints(MatrixXd *Xsig_out)
 void UKF::AugmentedSigmaPoints(MatrixXd *Xsig_aug_out)
 {
   // define spreading parameter
-  double lambda_ = 3 - n_aug_;
+  lambda_ = 3 - n_aug_;
   // create augmented mean vector
   VectorXd x_aug = VectorXd(7);
   // create augmented state covariance
@@ -193,7 +207,6 @@ void UKF::AugmentedSigmaPoints(MatrixXd *Xsig_aug_out)
 
 void UKF::SigmaPointPrediction(MatrixXd &Xsig_aug, double delta_t)
 {
-
   // create matrix with predicted sigma points as columns
   MatrixXd Xsig_pred = MatrixXd(n_x_, 2 * n_aug_ + 1);
   // predict sigma points
@@ -210,7 +223,7 @@ void UKF::SigmaPointPrediction(MatrixXd &Xsig_aug, double delta_t)
     // predicted state values
     double px_p, py_p;
     // avoid division by zero
-    if (fabs(yawd) > 0.001)
+    if (fabs(yawd) > 0.00001)
     {
       px_p = p_x + v / yawd * (sin(yaw + yawd * delta_t) - sin(yaw));
       py_p = p_y + v / yawd * (cos(yaw) - cos(yaw + yawd * delta_t));
@@ -238,4 +251,38 @@ void UKF::SigmaPointPrediction(MatrixXd &Xsig_aug, double delta_t)
   }
   // write result
   Xsig_pred_ = Xsig_pred;
+}
+
+void UKF::PredictMeanAndCovariance()
+{
+  // create vector for weights
+  weights_ = VectorXd(2 * n_aug_ + 1);
+  // set weights
+  double weight_0 = lambda_ / (lambda_ + n_aug_);
+  weights_(0) = weight_0;
+  for (int i = 1; i < 2 * n_aug_ + 1; ++i)
+  { // 2n+1 weights
+    double weight = 0.5 / (n_aug_ + lambda_);
+    weights_(i) = weight;
+  }
+  // predicted state mean
+  x_.fill(0.0);
+  for (int i = 0; i < 2 * n_aug_ + 1; ++i)
+  { // iterate over sigma points
+    x_ = x_ + weights_(i) * Xsig_pred_.col(i);
+  }
+  // predicted state covariance matrix
+  P_.fill(0.0);
+  for (int i = 0; i < 2 * n_aug_ + 1; ++i)
+  { // iterate over sigma points
+    // state difference
+    VectorXd x_diff = Xsig_pred_.col(i) - x_;
+    // angle normalization
+    while (x_diff(3) > M_PI)
+      x_diff(3) -= 2. * M_PI;
+    while (x_diff(3) < -M_PI)
+      x_diff(3) += 2. * M_PI;
+
+    P_ = P_ + weights_(i) * x_diff * x_diff.transpose();
+  }
 }
