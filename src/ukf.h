@@ -41,7 +41,22 @@ class UKF {
    */
   void UpdateRadar(MeasurementPackage meas_package);
 
+  private:
 
+    /**
+   * Generate Sigma Points
+   */
+  void GenerateSigmaPoints(void);
+    /**
+   * Augmented Sigma Points
+   * @param[in] x
+   * @param[in] P
+   * @param[out] Xsig_aug_out 
+   */
+  void  AugmentedSigmaPoints(Eigen::MatrixXd *Xsig_aug_out);
+
+  public:
+  
   // initially set to false, set to true in first call of ProcessMeasurement
   bool is_initialized_;
 
