@@ -46,10 +46,10 @@ UKF::UKF()
   Zsig_pred_ = MatrixXd(n_z_, 2 * n_aug_ + 1);
 
   // Process noise standard deviation longitudinal acceleration in m/s^2
-  std_a_ = 0.75;
+  std_a_ = 0.90;
 
   // Process noise standard deviation yaw acceleration in rad/s^2
-  std_yawdd_ = 0.65;
+  std_yawdd_ = 0.50;
 
   /**
    * DO NOT MODIFY measurement noise values below.
@@ -85,6 +85,7 @@ void UKF::ProcessMeasurement(MeasurementPackage meas_package)
    * measurements.
    */
   static unsigned int numCalls = 0;
+  std::cout << "=========================" << std::endl;
   std::cout << "Current # function call UKF::ProcessMeasurement: " << numCalls << std::endl;
   if (is_initialized_ < 2)
   {
@@ -92,19 +93,21 @@ void UKF::ProcessMeasurement(MeasurementPackage meas_package)
     {
       x_(0) = meas_package.raw_measurements_[0];
       x_(1) = meas_package.raw_measurements_[1];
+      std::cout << "Prediction for dT 0.0" << std::endl;
+      P_ = MatrixXd::Identity(n_x_, n_x_) * (-0.99);
+     // Prediction(0.0);  
     }
     if (meas_package.sensor_type_ == MeasurementPackage::SensorType::RADAR)
     {
       x_(2) = (meas_package.raw_measurements_[2]) * cos(meas_package.raw_measurements_[1]);
       x_(3) = 0;
       x_(4) = 0;
-    }
-    P_ = MatrixXd::Identity(n_x_, n_x_) * 0.45;
+    }  
     previous_time_stamp_ = meas_package.timestamp_;
     is_initialized_++;
   }
 
-  static float dT =0;
+  static float dT = 0;
   if (previous_time_stamp_ != meas_package.timestamp_)
   {
     dT = (meas_package.timestamp_ - previous_time_stamp_) / 1000000.0;
@@ -113,23 +116,21 @@ void UKF::ProcessMeasurement(MeasurementPackage meas_package)
     Prediction(dT);
     std::cout << "Prediction for dT " << dT << std::endl;
   }
-  if (meas_package.sensor_type_ == MeasurementPackage::RADAR && dT > 0)
+  if (meas_package.sensor_type_ == MeasurementPackage::RADAR && meas_package.timestamp_>0)
   {
-    Prediction(dT);
     std::cout << "UpdateRadar" << std::endl;
     UpdateRadar(meas_package);
   }
 
-  if (meas_package.sensor_type_ == MeasurementPackage::LASER && dT > 0)
+  if (meas_package.sensor_type_ == MeasurementPackage::LASER && meas_package.timestamp_>0)
   {
-    Prediction(dT);
     std::cout << "UpdateLidar" << std::endl;
     UpdateLidar(meas_package);
   }
-
+  std::cout << "=========================" << std::endl;
   numCalls++;
-//  if (numCalls > 14)
- //  exit(EXIT_SUCCESS); //DEBUG
+//   if (numCalls > 14)
+//    exit(EXIT_SUCCESS); //DEBUG
 }
 
 void UKF::Prediction(double delta_t)
@@ -214,11 +215,12 @@ void UKF::Prediction(double delta_t)
 void UKF::UpdateLidar(MeasurementPackage meas_package)
 {
   /**
-   * TODO: Complete this function! Use lidar data to update the belief 
+   *  Use lidar data to update the belief 
    * about the object's position. Modify the state vector, x_, and 
    * covariance, P_.
    * You can also calculate the lidar NIS, if desired.
    */
+  bool verbose = false;
   VectorXd z = VectorXd(n_z_lidar_);
   z << meas_package.raw_measurements_[0], //px
       meas_package.raw_measurements_[1];  // py
@@ -255,10 +257,12 @@ void UKF::UpdateLidar(MeasurementPackage meas_package)
   double lidarNIS = z_diff.transpose() * S_lidar_pred_ * z_diff;
 
   // print result
-  std::cout << "Time stamp: " << meas_package.timestamp_ << std::endl;
+  if (verbose)
+    std::cout << "Time stamp: " << meas_package.timestamp_ << std::endl;
   std::cout << "Lidar NIS (Normalized Innovation Squared) value: " << lidarNIS << std::endl;
-  std::cout << "Updated state x: " << std::endl
-            << x_ << std::endl;
+  if (verbose)
+    std::cout << "Updated state x: " << std::endl
+              << x_ << std::endl;
   //std::cout << "Updated state covariance P: " << std::endl << P_ << std::endl;
   // exit(EXIT_SUCCESS); //DEBUG
 }
@@ -271,6 +275,7 @@ void UKF::UpdateRadar(MeasurementPackage meas_package)
    * covariance, P_.
    * You can also calculate the radar NIS, if desired.
    */
+  bool verbose = false;
   VectorXd z = VectorXd(n_z_);
   z << meas_package.raw_measurements_[0], // rho in m
       meas_package.raw_measurements_[1],  // phi in rad
@@ -324,10 +329,12 @@ void UKF::UpdateRadar(MeasurementPackage meas_package)
   double radarNIS = z_diff.transpose() * S_pred_ * z_diff;
 
   // print result
-  std::cout << "Time stamp: " << meas_package.timestamp_ << std::endl;
+  if (verbose)
+    std::cout << "Time stamp: " << meas_package.timestamp_ << std::endl;
   std::cout << "Radar NIS (Normalized Innovation Squared) value: " << radarNIS << std::endl;
-  std::cout << "Updated state x: " << std::endl
-            << x_ << std::endl;
+  if (verbose)
+    std::cout << "Updated state x: " << std::endl
+              << x_ << std::endl;
   //std::cout << "Updated state covariance P: " << std::endl << P_ << std::endl;
   // exit(EXIT_SUCCESS); //DEBUG
 }

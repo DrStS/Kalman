@@ -4,8 +4,9 @@
 #include "Eigen/Dense"
 #include "measurement_package.h"
 
-class UKF {
- public:
+class UKF
+{
+public:
   /**
    * Constructor
    */
@@ -41,27 +42,26 @@ class UKF {
    */
   void UpdateRadar(MeasurementPackage meas_package);
 
-  private:
-
-    /**
+private:
+  /**
    * Generate Sigma Points
    */
   void GenerateSigmaPoints(Eigen::MatrixXd *Xsig_out);
-    /**
+  /**
    * Augmented Sigma Points
    * @param[in] x
    * @param[in] P
    * @param[out] Xsig_aug_out 
    */
-  void  AugmentedSigmaPoints(Eigen::MatrixXd *Xsig_aug_out);
-    /**
+  void AugmentedSigmaPoints(Eigen::MatrixXd *Xsig_aug_out);
+  /**
    * Augmented Sigma Points
    * @param[in] x
    * @param[in] P
    * @param[out] Xsig_aug_out 
    */
   void SigmaPointPrediction(Eigen::MatrixXd &Xsig_aug, double delta_t);
-    /**
+  /**
    * Augmented Sigma Points
    * @param[in] x
    * @param[in] P
@@ -72,8 +72,7 @@ class UKF {
   void PredictRadarMeasurement(void);
   void PredictLidarMeasurement(void);
 
-  public:
-  
+public:
   // initially set to false, set to true in first call of ProcessMeasurement
   unsigned int is_initialized_;
 
@@ -86,19 +85,19 @@ class UKF {
   // state vector: [pos1 pos2 vel_abs yaw_angle yaw_rate] in SI units and rad
   Eigen::VectorXd x_;
 
-   // state lidar vector: 
+  // state lidar vector:
   Eigen::VectorXd z_lidar_pred_;
 
-     // state radar vector: 
+  // state radar vector:
   Eigen::VectorXd z_pred_;
 
   // state covariance matrix
   Eigen::MatrixXd P_;
 
-    // state covariance matrix in lidar measurement space
+  // state covariance matrix in lidar measurement space
   Eigen::MatrixXd S_lidar_pred_;
 
-   // state covariance matrix in radar measurement space
+  // state covariance matrix in radar measurement space
   Eigen::MatrixXd S_pred_;
 
   // predicted sigma points matrix
@@ -110,8 +109,7 @@ class UKF {
   // predicted sigma points matrix in radar measurement space
   Eigen::MatrixXd Zsig_pred_;
 
-  long previous_time_stamp_lidar_;
-  long previous_time_stamp_radar_;
+  // previous time stamp
   long previous_time_stamp_;
 
   // Process noise standard deviation longitudinal acceleration in m/s^2
@@ -133,7 +131,7 @@ class UKF {
   double std_radphi_;
 
   // Radar measurement noise standard deviation radius change in m/s
-  double std_radrd_ ;
+  double std_radrd_;
 
   // Weights of sigma points
   Eigen::VectorXd weights_;
@@ -154,4 +152,4 @@ class UKF {
   double lambda_;
 };
 
-#endif  // UKF_H
+#endif // UKF_H
