@@ -46,7 +46,7 @@ class UKF {
     /**
    * Generate Sigma Points
    */
-  void GenerateSigmaPoints(void);
+  void GenerateSigmaPoints(Eigen::MatrixXd *Xsig_out);
     /**
    * Augmented Sigma Points
    * @param[in] x
@@ -54,6 +54,13 @@ class UKF {
    * @param[out] Xsig_aug_out 
    */
   void  AugmentedSigmaPoints(Eigen::MatrixXd *Xsig_aug_out);
+    /**
+   * Augmented Sigma Points
+   * @param[in] x
+   * @param[in] P
+   * @param[out] Xsig_aug_out 
+   */
+  void SigmaPointPrediction(Eigen::MatrixXd &Xsig_aug, double delta_t);
 
   public:
   
