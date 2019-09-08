@@ -15,7 +15,7 @@ UKF::UKF()
 
   // if this is false, radar measurements will be ignored (except during init)
   use_radar_ = true;
-
+  
   is_initialized_ = 0;
 
   // State dimension
@@ -26,7 +26,6 @@ UKF::UKF()
   z_pred_ = VectorXd(n_z_);
   // measurement covariance matrix radar
   S_pred_ = MatrixXd(n_z_, n_z_);
-
   z_lidar_pred_ = VectorXd(n_z_lidar_);
   S_lidar_pred_ = MatrixXd(n_z_lidar_, n_z_lidar_);
 
@@ -118,12 +117,14 @@ void UKF::ProcessMeasurement(MeasurementPackage meas_package)
   if (meas_package.sensor_type_ == MeasurementPackage::RADAR && meas_package.timestamp_>0)
   {
     std::cout << "UpdateRadar" << std::endl;
+    if(use_radar_)
     UpdateRadar(meas_package);
   }
 
   if (meas_package.sensor_type_ == MeasurementPackage::LASER && meas_package.timestamp_>0)
   {
     std::cout << "UpdateLidar" << std::endl;
+    if(use_laser_)
     UpdateLidar(meas_package);
   }
   std::cout << "=========================" << std::endl;
