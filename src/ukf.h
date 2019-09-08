@@ -44,32 +44,32 @@ public:
 
 private:
   /**
-   * Generate Sigma Points
+   * Generate Sigma Point
+   * @param[out] Xsig_out 
    */
   void GenerateSigmaPoints(Eigen::MatrixXd *Xsig_out);
   /**
    * Augmented Sigma Points
-   * @param[in] x
-   * @param[in] P
    * @param[out] Xsig_aug_out 
    */
   void AugmentedSigmaPoints(Eigen::MatrixXd *Xsig_aug_out);
   /**
-   * Augmented Sigma Points
-   * @param[in] x
-   * @param[in] P
-   * @param[out] Xsig_aug_out 
+   * Predict Sigma Points
+   * @param[in] Xsig_aug
+   * @param[in] delta_t
    */
   void SigmaPointPrediction(Eigen::MatrixXd &Xsig_aug, double delta_t);
   /**
-   * Augmented Sigma Points
-   * @param[in] x
-   * @param[in] P
-   * @param[out] Xsig_aug_out 
+   * Predict Mean and Covariance 
    */
   void PredictMeanAndCovariance(void);
-
+  /**
+   * Predict Radar Measurement
+   */
   void PredictRadarMeasurement(void);
+  /**
+   * Predict Lidar Measurement 
+   */
   void PredictLidarMeasurement(void);
 
 public:

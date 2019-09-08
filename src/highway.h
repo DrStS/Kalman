@@ -36,7 +36,7 @@ class Highway
 
 		egoCar = Car(Vect3(0, 0, 0), Vect3(4, 2, 2), Color(0, 1, 0), 0, 0, 2, "egoCar");
 
-		Car car1(Vect3(-10, 4, 0), Vect3(4, 2, 2), Color(1, 0, 1), 5, 0, 2, "car1");
+		Car car1(Vect3(-10, 4, 0), Vect3(4, 2, 2), Color(0, 0, 1), 5, 0, 2, "car1");
 
 		std::vector<accuation> car1_instructions;
 		accuation a = accuation(0.5 * 1e6, 0.5, 0.0);
@@ -106,7 +106,7 @@ class Highway
 
 	void stepHighway(double egoVelocity, long long timestamp, int frame_per_sec, pcl::visualization::PCLVisualizer::Ptr &viewer)
 	{
-		bool verbose = true;
+		bool verbose = false;
 
 		if (visualize_pcd)
 		{
